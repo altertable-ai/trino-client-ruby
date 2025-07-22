@@ -36,6 +36,7 @@ module Trino::Client
     def self.kill(query_id, options)
       faraday = faraday_client(options)
       response = faraday.delete do |req|
+        req.headers.merge!(Trino::Client.build_query_headers(options))
         req.url "/v1/query/#{query_id}"
       end
       return response.status / 100 == 2

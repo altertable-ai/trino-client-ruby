@@ -154,4 +154,15 @@ describe Trino::Client::Client do
       }]
     end
   end
+
+  describe 'memoizes' do
+    it 'memoizes faraday client accordingly to the options' do
+      expect(Trino::Client.faraday_client({server: 'localhost'})).to eq Trino::Client.faraday_client({server: 'localhost'})
+      expect(Trino::Client.faraday_client({server: 'localhost', user: 'whatever'})).to eq Trino::Client.faraday_client({server: 'localhost'})
+      expect(Trino::Client.faraday_client({server: 'localhost', not_a_faraday_option: 42})).to eq Trino::Client.faraday_client({server: 'localhost'})
+
+      expect(Trino::Client.faraday_client({server: 'localhost'})).not_to eq Trino::Client.faraday_client({server: 'localhost:8080'})
+      expect(Trino::Client.faraday_client({server: 'localhost'})).not_to eq Trino::Client.faraday_client({server: 'localhost', ssl: true})
+    end
+  end
 end
