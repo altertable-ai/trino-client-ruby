@@ -59,7 +59,7 @@ module Trino::Client
 
   def self.faraday_client(options)
     # we memoize faraday client with the options that are used to build it
-    faraday_client_options = options.slice(:server, :ssl, :http_proxy, :proxy, :follow_redirect, :gzip, :http_debug)
+    faraday_client_options = options.slice(:server, :ssl, :http_proxy, :proxy, :follow_redirect, :gzip, :http_debug, :faraday_adapter)
 
     @faraday_clients ||= {}
     @faraday_clients[faraday_client_options] ||= build_faraday_client(options)
@@ -97,7 +97,8 @@ module Trino::Client
         faraday.request :gzip
       end
       faraday.response :logger if options[:http_debug]
-      faraday.adapter Faraday.default_adapter
+      adapter = options[:faraday_adapter] || Faraday.default_adapter
+      faraday.adapter adapter
     end
 
     faraday.headers.merge!(HEADERS)
